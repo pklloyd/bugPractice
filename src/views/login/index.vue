@@ -28,25 +28,34 @@
         />
       </el-form-item>
 
-      <el-form-item prop="password">
-        <span class="svg-container">
-          <svg-icon icon-class="password" />
-        </span>
-        <el-input
-          v-model="loginForm.password"
-          :type="passwordType"
-          :placeholder="$t('login.password')"
-          name="password"
-          auto-complete="on"
-          @keyup.enter.native="handleLogin"
-        />
-        <span class="show-pwd" @click="showPwd">
-          <svg-icon
-            :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'"
+      <el-tooltip
+        v-model="hasCapsLock"
+        content="大写锁定已打开"
+        placement="top"
+        effect="light"
+        manual
+      >
+        <el-form-item prop="password">
+          <span class="svg-container">
+            <svg-icon icon-class="password" />
+          </span>
+          <el-input
+            v-model="loginForm.password"
+            :type="passwordType"
+            :placeholder="$t('login.password')"
+            name="password"
+            auto-complete="on"
+            @blur="hasCapsLock = false"
+            @keyup.native="handleCapsLock"
+            @keyup.enter.native="handleLogin"
           />
-        </span>
-      </el-form-item>
-
+          <span class="show-pwd" @click="showPwd">
+            <svg-icon
+              :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'"
+            />
+          </span>
+        </el-form-item>
+      </el-tooltip>
       <el-button
         :loading="loading"
         type="primary"
@@ -127,7 +136,8 @@ export default {
       passwordType: 'password',
       loading: false,
       showDialog: false,
-      redirect: undefined
+      redirect: undefined,
+      hasCapsLock: false
     }
   },
   watch: {
@@ -145,6 +155,9 @@ export default {
     // window.removeEventListener('storage', this.afterQRScan)
   },
   methods: {
+    handleCapsLock(e) {
+      this.hasCapsLock = e.getModifierState('CapsLock')
+    },
     showPwd() {
       if (this.passwordType === 'password') {
         this.passwordType = ''
